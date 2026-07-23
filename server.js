@@ -5,6 +5,9 @@ const PORT = process.env.PORT || 3000;
 
 const FIREBASE_DB_URL = "https://myscript-6a096-default-rtdb.asia-southeast1.firebasedatabase.app/";
 
+// Change this to any secret password you want
+const SECRET_KEY = "MySecretAuthKey123";
+
 const FAKE_404_HTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -31,18 +34,22 @@ const FAKE_404_HTML = `
 </html>
 `;
 
-app.get('/', (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-    res.status(404).send(FAKE_404_HTML);
-});
-
 app.get('/get-script', async (req, res) => {
+    // Check if the secret header matches
+    const clientKey = req.headers['x-auth-key'];
+
+    // If a browser opens it OR the key is wrong -> Show 404
+    if (clientKey !== SECRET_KEY) {
+        res.setHeader('Content-Type', 'text/html');
+        return res.status(404).send(FAKE_404_HTML);
+    }
+
     try {
         const response = await axios.get(`${FIREBASE_DB_URL}scripts.json`);
         const scriptsData = response.data;
 
         if (!scriptsData) {
-            return res.status(404).send("-- Error: No keys available in database.");
+            return res.status(404).send("-- Error: No keys available.");
         }
 
         const keys = Object.keys(scriptsData);
@@ -58,6 +65,7 @@ app.get('/get-script', async (req, res) => {
     }
 });
 
+// Any other URL shows 404
 app.use((req, res) => {
     res.setHeader('Content-Type', 'text/html');
     res.status(404).send(FAKE_404_HTML);
